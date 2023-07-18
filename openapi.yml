@@ -1,6 +1,6 @@
-openapi: 3.0.0
+openapi: 3.1.0
 info:
-  title: OpenPDS API
+  title: Openpds API
   version: 1.0.0
 paths:
   /v1/transfers:
@@ -12,11 +12,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TransfersList"
+                $ref: "#/components/schemas/TransfersListOutput"
     post:
       operationId: CreateTransfer
       requestBody:
-        $ref: "#/components/requestBodies/TransferCreate"
+        $ref: "#/components/requestBodies/CreateTransferInput"
       responses:
         "200":
           description: Create a transfer.
@@ -25,7 +25,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Transfer"
 
-  /v1/transfers/{id}:
+  /v1alpha1/transfers/{id}:
     parameters:
       - name: id
         in: path
@@ -43,6 +43,8 @@ paths:
                 $ref: "#/components/schemas/Transfer"
     put:
       operationId: UpdateTransfer
+      requestBody:
+        $ref: "#/components/requestBodies/CreateTransferInput"
       responses:
         "200":
           description: Update a transfer.
@@ -60,7 +62,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Transfer"
 
-  /v1/transfers/{id}/cancel:
+  /v1alpha1/transfers/{id}/cancel:
     parameters:
       - name: id
         in: path
@@ -77,7 +79,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Transfer"
 
-  /v1/transfers/{id}/confirm:
+  /v1alpha1/transfers/{id}/confirm:
     parameters:
       - name: id
         in: path
@@ -94,7 +96,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Transfer"
 
-  /v1/providers:
+  /v1alpha1/providers:
     get:
       operationId: ListProviders
       responses:
@@ -119,9 +121,34 @@ paths:
         "503":
           description: netdata daemon not ready (used for health checks).
 
-  /v1/receiving-methods/check:
+  /v1alpha1/terminals:
+    get:
+      operationId: ListTerminals
+      responses:
+        "200":
+          description: List terminals.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Provider"
+
     post:
-      operationId: CheckReceivingMethod
+      operationId: CreateTerminal
+      responses:
+        "200":
+          description: Register a terminal.
+          content:
+            application/json:
+              schema:
+                type: object
+        "503":
+          description: netdata daemon not ready (used for health checks).
+
+  /v1alpha1/receiving-methods/validate:
+    post:
+      operationId: ValidateReceivingMethod
       requestBody:
         $ref: "#/components/requestBodies/ReceivingMethodCheck"
       responses:
@@ -131,20 +158,8 @@ paths:
             application/json:
               schema:
                 type: object
-  /v1/receiving-methods/fetch:
-    post:
-      operationId: FetchReceivingMethod
-      requestBody:
-        $ref: "#/components/requestBodies/ReceivingMethodCheck"
-      responses:
-        "200":
-          description: Retrieve a receiving method.
-          content:
-            application/json:
-              schema:
-                type: object
 
-  /v1/receiving-methods:
+  /v1alpha1/receiving-methods:
     parameters:
       - in: query
         name: receiving_method
@@ -155,10 +170,12 @@ paths:
           properties:
             msisdn:
               type: string
+        required: true
       - in: query
         name: provider_id
         schema:
           type: integer
+        required: true
     get:
       operationId: GetReceivingMethod
       responses:
@@ -169,7 +186,7 @@ paths:
               schema:
                 type: object
 
-  /v1/connectors:
+  /v1alpha1/connectors:
     get:
       operationId: ListConnectors
       responses:
@@ -182,12 +199,13 @@ paths:
 
 components:
   requestBodies:
-    TransferCreate:
+    CreateTransferInput:
       required: true
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/TransferCreate"
+            $ref: "#/components/schemas/CreateTransferInput"
+
     ReceivingMethodCheck:
       required: true
       content:
@@ -199,11 +217,12 @@ components:
                 type: integer
                 format: int64
               receiving_method:
-                type: object
+                $ref: "#/components/schemas/ReceivingMethod"
               receiving_customer:
                 type: object
               receiving_business:
                 type: object
+
     ReceivingMethodFetch:
       required: true
       content:
@@ -215,7 +234,7 @@ components:
                 type: object
 
   schemas:
-    TransferCreate:
+    CreateTransferInput:
       type: object
       properties:
         third_party_reference:
@@ -290,7 +309,7 @@ components:
         transfer_type:
           type: string
 
-    TransfersList:
+    TransfersListOutput:
       type: object
       properties:
         payments:
