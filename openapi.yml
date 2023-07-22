@@ -239,7 +239,7 @@ components:
       properties:
         third_party_reference:
           type: string
-        delivery_method:
+        channel:
           type: string
           enum:
             - BANK
@@ -301,7 +301,7 @@ components:
           format: date-time
         return_url:
           type: string
-        delivery_method:
+        channel:
           type: string
           enum:
             - BANK_TRANSFER
