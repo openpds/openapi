@@ -3,7 +3,7 @@ info:
   title: Openpds API
   version: 1.0.0
 paths:
-  /v1/transfers:
+  /v1alpha1/transfers:
     get:
       operationId: ListTransfers
       responses:
@@ -312,7 +312,7 @@ components:
     TransfersListOutput:
       type: object
       properties:
-        payments:
+        transfers:
           type: array
           items:
             $ref: "#/components/schemas/Transfer"
